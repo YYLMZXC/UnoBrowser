@@ -1,0 +1,85 @@
+# .NET / Uno Platform build output
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x64/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.csproj.vspscc
+*.vssscc
+*.userprefs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Rider / Mono
+.mono/
+
+# Android
+*.apk
+*.aab
+*.androidproj
+*.keystore
+*.jks
+*.pfx
+*.key
+obj/Release/
+Properties/launchSettings.json
+*.serialized
+Thumbs.db
+
+# iOS
+*.ipa
+*.xcarchive
+*.app/
+CoreSimulator/
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# Coverage
+coverage*.json
+coverage*.xml
+
+# Build logs
+*.log
+msbuild.log
+*.binlog
+
+# OS / misc
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Temp / scripts
+fixsvg_tmp.ps1
+tmp/
+*.tmp

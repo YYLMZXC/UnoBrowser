@@ -1,0 +1,9 @@
+<Solution>
+    <Configurations>
+        <Platform Name="AnyCPU" />
+        <Platform Name="x64" />
+        <Platform Name="x86" />
+        <Platform Name="ARM64" />
+    </Configurations>
+    <Project Path="SCAssistant.UnoApp/SCAssistant.UnoApp.csproj" />
+</Solution>

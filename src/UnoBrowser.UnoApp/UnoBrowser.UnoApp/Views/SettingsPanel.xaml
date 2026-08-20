@@ -1,0 +1,134 @@
+<UserControl
+    x:Class="UnoBrowser.UnoApp.Views.SettingsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:UnoBrowser.UnoApp.ViewModels"
+    xmlns:views="using:UnoBrowser.UnoApp.Views"
+    mc:Ignorable="d"
+    d:DesignWidth="400" d:DesignHeight="600">
+
+    <UserControl.Resources>
+        <!-- 标签选中/未选中颜色 -->
+        <SolidColorBrush x:Key="TabSelectedBg" Color="#0078D4" />
+        <SolidColorBrush x:Key="TabUnselectedBg" Color="Transparent" />
+        <SolidColorBrush x:Key="TabSelectedFg" Color="White" />
+        <SolidColorBrush x:Key="TabUnselectedFg" Color="#666666" />
+
+        <!-- 白色面板下的固定文字颜色 -->
+        <SolidColorBrush x:Key="PanelTextColor" Color="#1A1A1A" />
+    </UserControl.Resources>
+
+    <!-- 右侧滑出面板（固定白色，像浏览器设置弹层） -->
+    <Border Background="White"
+            BorderBrush="#E0E0E0"
+            BorderThickness="1,0,0,0"
+            CornerRadius="8,0,0,8"
+            Padding="16,12"
+            MinWidth="300"
+            MaxWidth="420">
+
+        <Grid RowDefinitions="Auto,Auto,*">
+            <!-- Header: 标题 + 关闭按钮 -->
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="设置" FontSize="18" FontWeight="Bold"
+                           Foreground="{StaticResource PanelTextColor}"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="✕" Width="32" Height="32"
+                        FontSize="14" Padding="4"
+                        Foreground="{StaticResource PanelTextColor}"
+                        Click="CloseButton_Click" />
+            </Grid>
+
+            <!-- Tab 切换按钮 -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Margin="0,0,0,12">
+                <Button x:Name="BrowserSettingsTab"
+                        Content="浏览器标识" FontSize="13" Padding="12,6"
+                        Click="BrowserSettingsTab_Click"
+                        Background="{StaticResource TabSelectedBg}"
+                        Foreground="{StaticResource TabSelectedFg}" />
+                <Button x:Name="DownloadTab"
+                        Content="下载管理" FontSize="13" Padding="12,6"
+                        Click="DownloadTab_Click"
+                        Background="Transparent"
+                        Foreground="{StaticResource TabUnselectedFg}" />
+                <Button x:Name="HistoryTab"
+                        Content="历史记录" FontSize="13" Padding="12,6"
+                        Click="HistoryTab_Click"
+                        Background="Transparent"
+                        Foreground="{StaticResource TabUnselectedFg}" />
+            </StackPanel>
+
+            <!-- 内容区域 -->
+            <Grid Grid.Row="2">
+                <!-- Tab 0: 浏览器标识设置 -->
+                <StackPanel x:Name="BrowserSettingsPanel" Spacing="12" Visibility="Visible">
+                    <TextBlock Text="浏览器标识 (User-Agent)" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource PanelTextColor}" />
+                    <TextBlock Text="选择浏览网页时使用的浏览器标识。修改后当前页面将自动刷新。"
+                               FontSize="12" Foreground="Gray" TextWrapping="Wrap" />
+                    <ComboBox x:Name="UaComboBox"
+                              ItemsSource="{Binding UaOptions}"
+                              SelectedIndex="{Binding SelectedUaIndex, Mode=TwoWay}"
+                              FontSize="13"
+                              HorizontalAlignment="Stretch"
+                              MaxDropDownHeight="200">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:UaOption">
+                                <TextBlock Text="{Binding DisplayName}" FontSize="13"
+                                           VerticalAlignment="Center" Margin="0,4" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Tab 1: 下载管理 -->
+                <StackPanel x:Name="DownloadSettingsPanel" Spacing="8" Visibility="Collapsed">
+                    <views:DownloadListPanel x:Name="DownloadListControl"
+                                             DataContext="{Binding DownloadList}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Content="打开下载文件夹" FontSize="12"
+                                Command="{Binding OpenDownloadFolderCommand}" />
+                        <Button Content="清除历史记录" FontSize="12"
+                                Command="{Binding ClearDownloadHistoryCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Tab 2: 历史记录 -->
+                <StackPanel x:Name="HistorySettingsPanel" Spacing="8" Visibility="Collapsed">
+                    <TextBlock Text="浏览历史" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource PanelTextColor}" />
+                    <TextBlock Text="点击条目可跳转到对应页面。" FontSize="12"
+                               Foreground="Gray" TextWrapping="Wrap" />
+
+                    <ListBox x:Name="HistoryListBox"
+                             ItemsSource="{Binding History}"
+                             MaxHeight="400"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             SelectionChanged="HistoryListBox_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{Binding}"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"
+                                           Padding="8,6"
+                                           Foreground="{StaticResource PanelTextColor}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Content="清除历史记录" FontSize="12"
+                                Command="{Binding ClearHistoryCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

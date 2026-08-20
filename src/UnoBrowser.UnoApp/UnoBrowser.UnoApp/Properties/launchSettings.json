@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "UnoBrowser (Desktop - Win32)": {
+      "commandName": "Project"
+    },
+    "UnoBrowser (Desktop - macOS)": {
+      "commandName": "Project"
+    },
+    "UnoBrowser (Desktop - Linux X11)": {
+      "commandName": "Project"
+    },
+    "UnoBrowser (Desktop - Linux FrameBuffer)": {
+      "commandName": "Project"
+    }
+  }
+}

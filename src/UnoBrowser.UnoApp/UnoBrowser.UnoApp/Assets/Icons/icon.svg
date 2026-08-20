@@ -1,0 +1,31 @@
+<svg width="1157" height="960" viewBox="0 0 1157 960" xmlns="http://www.w3.org/2000/svg">
+  <!-- 草方块左 -->
+  <rect x="80" y="440" width="480" height="480" fill="#86bb59"/>
+  <rect x="80" y="580" width="480" height="340" fill="#9b6b47"/>
+  <!-- 草方块右 -->
+  <rect x="597" y="440" width="480" height="480" fill="#86bb59"/>
+  <rect x="597" y="580" width="480" height="340" fill="#9b6b47"/>
+  <!-- 原木方块 -->
+  <rect x="340" y="120" width="480" height="480" fill="#7b4f32"/>
+  <rect x="340" y="120" width="480" height="160" fill="#f8e289"/>
+
+  <!--左侧像素星星带笑脸 -->
+  <path d="M240 480 l40 -60 l70 10 l35 -55 l35 55 l70 -10 l40 60 l-50 45 l20 70 l-65 -35 l-65 35 l20 -70 z" fill="#ffdd22"/>
+  <!--星星五官 -->
+  <rect x="280" y="520" width="18" height="22" fill="#443322"/>
+  <rect x="342" y="520" width="18" height="22" fill="#443322"/>
+  <path d="M290 560 Q312 582 334 560" stroke="#443322" stroke-width="6" fill="none"/>
+  <ellipse cx="270" cy="550" rx="16" ry="12" fill="#ffaa44"/>
+  <ellipse cx="354" cy="550" rx="16" ry="12" fill="#ffaa44"/>
+
+  <!--右侧像素星星带笑脸 -->
+  <path d="M640 480 l40 -60 l70 10 l35 -55 l35 55 l70 -10 l40 60 l-50 45 l20 70 l-65 -35 l-65 35 l20 -70 z" fill="#ffdd22"/>
+  <rect x="680" y="520" width="18" height="22" fill="#443322"/>
+  <rect x="742" y="520" width="18" height="22" fill="#443322"/>
+  <path d="M690 560 Q712 582 734 560" stroke="#443322" stroke-width="6" fill="none"/>
+  <ellipse cx="670" cy="550" rx="16" ry="12" fill="#ffaa44"/>
+  <ellipse cx="754" cy="550" rx="16" ry="12" fill="#ffaa44"/>
+
+  <!--文字：生存战争助手 -->
+  <text x="180" y="840" font-size="130" font-weight="bold" fill="#fff8dc" font-family="sans-serif">生存战争助手</text>
+</svg>

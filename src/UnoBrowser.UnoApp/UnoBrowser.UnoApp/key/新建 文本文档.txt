@@ -1,0 +1,6 @@
+项目	值
+文件	key\scassistant.keystore
+别名 (alias)	scassistant
+密码	sc123456
+算法	RSA 2048
+有效期	10000 天

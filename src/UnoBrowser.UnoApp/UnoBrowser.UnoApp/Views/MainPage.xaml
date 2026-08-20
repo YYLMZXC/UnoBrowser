@@ -1,0 +1,256 @@
+<Page
+    x:Class="UnoBrowser.UnoApp.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:UnoBrowser.UnoApp.Views"
+    xmlns:converters="using:UnoBrowser.UnoApp.Converters"
+    xmlns:utu="using:Uno.Toolkit.UI"
+    mc:Ignorable="d"
+    d:DesignWidth="1024" d:DesignHeight="768">
+
+    <!-- 资源 -->
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+
+        <!-- 底部导航按钮样式：等宽矩形按钮，当前所在站点由代码高亮为蓝色 -->
+        <Style x:Key="BottomBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{ThemeResource SystemBaseMediumColor}" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0,10" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+
+        <!-- 顶部工具栏图标按钮样式（像浏览器那样用图标） -->
+        <Style x:Key="ToolbarIconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+
+        <!-- 窄屏工具栏图标按钮样式（小尺寸） -->
+        <Style x:Key="NarrowToolbarIconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveStates">
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WideToolbar.Visibility" Value="Collapsed" />
+                        <Setter Target="NarrowToolbar.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="500" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="WideToolbar.Visibility" Value="Visible" />
+                        <Setter Target="NarrowToolbar.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- Main content -->
+        <Grid x:Name="RootGrid" utu:SafeArea.Insets="VisibleBounds">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- ========== 宽屏工具栏 (桌面端，单行：浏览器式图标按钮 + 地址栏居中) ========== -->
+            <Border Grid.Row="0" x:Name="WideToolbar" Padding="4,2"
+                    Background="{ThemeResource SystemAltMediumLowColor}">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左区：后退 / 前进 / 刷新 / 主界面（图标，左对齐） -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                HorizontalAlignment="Left" Spacing="2">
+                        <Button Style="{StaticResource ToolbarIconButtonStyle}"
+                                Command="{Binding NavigateBackCommand}"
+                                ToolTipService.ToolTip="后退">
+                            <SymbolIcon Symbol="Back" />
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButtonStyle}"
+                                Command="{Binding NavigateForwardCommand}"
+                                ToolTipService.ToolTip="前进">
+                            <SymbolIcon Symbol="Forward" />
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButtonStyle}"
+                                Command="{Binding ReloadCommand}"
+                                ToolTipService.ToolTip="刷新">
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+                        <Button Style="{StaticResource ToolbarIconButtonStyle}"
+                                Command="{Binding GoHomeCommand}"
+                                ToolTipService.ToolTip="主界面">
+                            <SymbolIcon Symbol="Home" />
+                        </Button>
+                    </StackPanel>
+
+                    <!-- 中区：地址栏 + 跳转（组合居中，跳转紧贴地址栏） -->
+                    <Grid Grid.Column="1" ColumnSpacing="4" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="AddressBar"
+                                 Text="{Binding CurrentUrl, Mode=OneWay}"
+                                 PlaceholderText="输入网址后按回车或点跳转"
+                                 VerticalAlignment="Center"
+                                 KeyDown="AddressBar_KeyDown" />
+                        <Button Grid.Column="1" x:Name="GoButton"
+                                Style="{StaticResource ToolbarIconButtonStyle}"
+                                Click="GoButton_Click"
+                                ToolTipService.ToolTip="跳转">
+                            <SymbolIcon Symbol="Go" />
+                        </Button>
+                    </Grid>
+
+                    <!-- 右区：加载中 / 设置（右对齐，设置贴最右） -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                HorizontalAlignment="Right" Spacing="2">
+                        <TextBlock Text="加载中..." VerticalAlignment="Center"
+                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <Button Style="{StaticResource ToolbarIconButtonStyle}"
+                                Command="{Binding OpenSettingsCommand}"
+                                ToolTipService.ToolTip="设置">
+                            <SymbolIcon Symbol="Setting" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ========== 窄屏工具栏 (手机端，双行：浏览器式图标按钮 + 地址栏) ========== -->
+            <Border Grid.Row="0" x:Name="NarrowToolbar" Padding="4,2"
+                    Visibility="Collapsed"
+                    Background="{ThemeResource SystemAltMediumLowColor}">
+                <StackPanel Spacing="3">
+                    <!-- 第1行：后退 / 前进 / 刷新 / 主界面 + 加载中（弹性） + 设置 -->
+                    <Grid ColumnSpacing="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Command="{Binding NavigateBackCommand}"
+                                ToolTipService.ToolTip="后退">
+                            <SymbolIcon Symbol="Back" />
+                        </Button>
+                        <Button Grid.Column="1" Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Command="{Binding NavigateForwardCommand}"
+                                ToolTipService.ToolTip="前进">
+                            <SymbolIcon Symbol="Forward" />
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Command="{Binding ReloadCommand}"
+                                ToolTipService.ToolTip="刷新">
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+                        <Button Grid.Column="3" Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Command="{Binding GoHomeCommand}"
+                                ToolTipService.ToolTip="主界面">
+                            <SymbolIcon Symbol="Home" />
+                        </Button>
+                        <TextBlock Grid.Column="4" Text="加载中..." VerticalAlignment="Center" FontSize="11"
+                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <Button Grid.Column="5" Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Command="{Binding OpenSettingsCommand}"
+                                ToolTipService.ToolTip="设置">
+                            <SymbolIcon Symbol="Setting" />
+                        </Button>
+                    </Grid>
+                    <!-- 第2行：地址栏 + 跳转 -->
+                    <Grid ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" x:Name="NarrowAddressBar"
+                                 Text="{Binding CurrentUrl, Mode=OneWay}"
+                                 PlaceholderText="输入网址后跳转"
+                                 FontSize="12"
+                                 VerticalAlignment="Center"
+                                 KeyDown="NarrowAddressBar_KeyDown" />
+                        <Button Grid.Column="1" x:Name="NarrowGoButton"
+                                Style="{StaticResource NarrowToolbarIconButtonStyle}"
+                                Click="NarrowGoButton_Click"
+                                ToolTipService.ToolTip="跳转">
+                            <SymbolIcon Symbol="Go" />
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Browser host -->
+            <Grid Grid.Row="1" x:Name="BrowserHost"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+            <!-- ========== 底栏 (SC 快捷导航，3 个等宽矩形按钮分割底部空间) ========== -->
+            <Border Grid.Row="2" Background="{ThemeResource SystemAltMediumLowColor}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="BottomTabHome" Content="SC中文社区"
+                            Command="{Binding NavigateHomeCommand}"
+                            Style="{StaticResource BottomBarButtonStyle}" />
+                    <Button Grid.Column="1" x:Name="BottomTabSCKey" Content="SC联机号"
+                            Command="{Binding NavigateSCKeyCommand}"
+                            Style="{StaticResource BottomBarButtonStyle}" />
+                    <Button Grid.Column="2" x:Name="BottomTabSCWZ" Content="SC导航网"
+                            Command="{Binding NavigateSCWZCommand}"
+                            Style="{StaticResource BottomBarButtonStyle}" />
+                </Grid>
+            </Border>
+            <!-- 设置面板覆盖层（无遮罩，打开时仍能看到主界面/浏览器内容） -->
+            <Grid x:Name="SettingsOverlay"
+                  Grid.RowSpan="3"
+                  Visibility="Collapsed"
+                  Canvas.ZIndex="100">
+                <!-- 设置面板靠右显示 -->
+                <views:SettingsPanel x:Name="SettingsPanelControl"
+                                      DataContext="{Binding Settings}"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Stretch"
+                                      Width="380" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

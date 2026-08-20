@@ -1,0 +1,139 @@
+<UserControl
+    x:Class="UnoBrowser.UnoApp.Views.DownloadListPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:UnoBrowser.UnoApp.Converters"
+    mc:Ignorable="d"
+    d:DesignWidth="360" d:DesignHeight="500">
+
+    <UserControl.Resources>
+        <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        <converters:DownloadStateToTextConverter x:Key="StateToTextConverter" />
+        <converters:ProgressToPercentTextConverter x:Key="ProgressToPercentTextConverter" />
+        <!-- 白色面板下的固定文字颜色 -->
+        <SolidColorBrush x:Key="PanelTextColor" Color="#1A1A1A" />
+        <SolidColorBrush x:Key="PanelMutedColor" Color="#757575" />
+        <SolidColorBrush x:Key="PanelErrorColor" Color="#C62828" />
+    </UserControl.Resources>
+
+    <Border Background="White"
+            BorderBrush="#E0E0E0"
+            BorderThickness="1" CornerRadius="4" Padding="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                <TextBlock Grid.Column="0" Text="下载文件列表" FontSize="16" FontWeight="Bold"
+                           Foreground="{StaticResource PanelTextColor}"
+                           VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="打开文件夹" Command="{Binding OpenDownloadsFolderCommand}" />
+                    <Button Content="清空" Command="{Binding DeleteAllRecordsCommand}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- 空状态提示 -->
+            <TextBlock Grid.Row="1" Text="暂无下载记录&#x0a;遇到可下载文件时将自动开始下载"
+                       Foreground="{StaticResource PanelMutedColor}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       TextAlignment="Center" FontSize="13"
+                       Visibility="{Binding HasRecords, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
+            <!-- List -->
+            <ListView Grid.Row="1"
+                      x:Name="RootList"
+                      ItemsSource="{Binding Records}"
+                      SelectedItem="{Binding SelectedRecord, Mode=TwoWay}"
+                      Visibility="{Binding HasRecords, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="4" Margin="0,2">
+                            <StackPanel Spacing="4">
+                                <!-- 文件名 + 文件大小 -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding FileName}" FontWeight="Bold"
+                                               Foreground="{StaticResource PanelTextColor}"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Text="{Binding FileSizeDisplay}"
+                                               FontSize="11" Foreground="{StaticResource PanelMutedColor}"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0" />
+                                </Grid>
+
+                                <!-- 进度条 -->
+                                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="4" />
+
+                                <!-- 状态行：状态 + 百分比 -->
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" FontSize="11"
+                                               Foreground="{StaticResource PanelMutedColor}">
+                                        <Run Text="{Binding StateText}" />
+                                        <Run Text=" - " />
+                                        <Run Text="{Binding Progress, Converter={StaticResource ProgressToPercentTextConverter}}" />
+                                    </TextBlock>
+                                    <!-- 来源 URL -->
+                                    <TextBlock Grid.Column="1" Text="{Binding Url}" FontSize="10"
+                                               Foreground="#BDBDBD"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="8,0,0,0" />
+                                </Grid>
+
+                                <!-- 错误信息（失败时） -->
+                                <TextBlock Text="{Binding ErrorMessage}" FontSize="11"
+                                           Foreground="{StaticResource PanelErrorColor}"
+                                           TextWrapping="Wrap"
+                                           Visibility="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}" />
+
+                                <!-- 操作按钮（按状态显示，浏览器式） -->
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <!-- 下载中：取消 -->
+                                    <Button Content="取消" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.CancelDownloadCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <!-- 失败/取消：重试 -->
+                                    <Button Content="重试" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.RetryDownloadCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding CanRetry, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <!-- 完成：打开文件 -->
+                                    <Button Content="打开" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.OpenFileCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding CanOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <!-- 完成：定位文件 -->
+                                    <Button Content="定位" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.OpenFolderCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding CanOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <!-- 删除该记录 -->
+                                    <Button Content="删除" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.DeleteRecordCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Footer -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8"
+                        Margin="0,8,0,0"
+                        Visibility="{Binding HasRecords, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="下载文件保存在软件目录的 Downloads 文件夹" FontSize="11"
+                           Foreground="{StaticResource PanelMutedColor}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
