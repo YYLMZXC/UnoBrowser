@@ -40,10 +40,10 @@
 
         <!-- Android 签名配置 -->
         <AndroidKeyStore>true</AndroidKeyStore>
-        <AndroidSigningKeyStore>key\scassistant.keystore</AndroidSigningKeyStore>
-        <AndroidSigningStorePass>sc123456</AndroidSigningStorePass>
-        <AndroidSigningKeyAlias>scassistant</AndroidSigningKeyAlias>
-        <AndroidSigningKeyPass>sc123456</AndroidSigningKeyPass>
+        <AndroidSigningKeyStore>key\unobrowser.keystore</AndroidSigningKeyStore>
+        <AndroidSigningStorePass>unobrowser123</AndroidSigningStorePass>
+        <AndroidSigningKeyAlias>unobrowser</AndroidSigningKeyAlias>
+        <AndroidSigningKeyPass>unobrowser123</AndroidSigningKeyPass>
     </PropertyGroup>
 
     <ItemGroup>

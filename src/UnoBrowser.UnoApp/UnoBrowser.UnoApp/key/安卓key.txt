@@ -1,0 +1,10 @@
+项目	值
+文件	key\unobrowser.keystore
+别名 (alias)	unobrowser
+密钥库密码 (storepass)	unobrowser123
+密钥密码 (keypass)	unobrowser123
+算法	RSA 2048
+有效期	10000 天（约 27 年）
+指纹 (SHA1)	74:2F:20:A8:62:B9:E0:CA:E2:15:89:6A:9E:89:38:4E:E5:81:96:9F
+指纹 (SHA256)	2D:70:1C:9B:F0:A2:AB:B4:F0:22:33:E4:E4:AF:F9:A5:47:D1:60:39:58:C5:A1:79:6C:98:A3:56:AA:EC:6E:FF
+生成时间	2026-08-20
