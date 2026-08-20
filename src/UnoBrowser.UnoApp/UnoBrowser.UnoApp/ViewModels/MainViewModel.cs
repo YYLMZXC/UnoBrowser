@@ -14,7 +14,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     // ===================== 浏览器相关 =====================
 
-    private string _currentUrl = "https://test.suancaixianyu.cn/";
+    private string _currentUrl = "https://www.bing.com";
     private string _statusText = "就绪";
     private bool _isLoading;
     private string _windowTitle = "Uno浏览器";
@@ -235,8 +235,8 @@ public class MainViewModel : INotifyPropertyChanged
     public void NavigateToHome()
     {
         LogHelper.Info("[主页] NavigateToHome");
-        _browser.Initialize("https://test.suancaixianyu.cn/");
-        CurrentUrl = "https://test.suancaixianyu.cn/";
+        _browser.Initialize("https://www.bing.com");
+        CurrentUrl = "https://www.bing.com";
         UpdateCurrentTab(CurrentUrl);
     }
 

@@ -15,19 +15,6 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
 
-        <!-- 底部导航按钮样式：等宽矩形按钮，当前所在站点由代码高亮为蓝色 -->
-        <Style x:Key="BottomBarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{ThemeResource SystemBaseMediumColor}" />
-            <Setter Property="CornerRadius" Value="0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0,10" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <!-- 顶部工具栏图标按钮样式（像浏览器那样用图标） -->
         <Style x:Key="ToolbarIconButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
@@ -80,7 +67,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- ========== 宽屏工具栏 (桌面端，单行：浏览器式图标按钮 + 地址栏居中) ========== -->
@@ -220,28 +206,9 @@
             <Grid Grid.Row="1" x:Name="BrowserHost"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-            <!-- ========== 底栏 (SC 快捷导航，3 个等宽矩形按钮分割底部空间) ========== -->
-            <Border Grid.Row="2" Background="{ThemeResource SystemAltMediumLowColor}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" x:Name="BottomTabHome" Content="SC中文社区"
-                            Command="{Binding NavigateHomeCommand}"
-                            Style="{StaticResource BottomBarButtonStyle}" />
-                    <Button Grid.Column="1" x:Name="BottomTabSCKey" Content="SC联机号"
-                            Command="{Binding NavigateSCKeyCommand}"
-                            Style="{StaticResource BottomBarButtonStyle}" />
-                    <Button Grid.Column="2" x:Name="BottomTabSCWZ" Content="SC导航网"
-                            Command="{Binding NavigateSCWZCommand}"
-                            Style="{StaticResource BottomBarButtonStyle}" />
-                </Grid>
-            </Border>
             <!-- 设置面板覆盖层（无遮罩，打开时仍能看到主界面/浏览器内容） -->
             <Grid x:Name="SettingsOverlay"
-                  Grid.RowSpan="3"
+                  Grid.RowSpan="2"
                   Visibility="Collapsed"
                   Canvas.ZIndex="100">
                 <!-- 设置面板靠右显示 -->
