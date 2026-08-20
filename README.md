@@ -56,9 +56,15 @@ src/UnoBrowser.UnoApp/UnoBrowser.UnoApp/
 ├── Models/                 数据模型（AppSettings、DownloadRecord 等）
 ├── Converters/             XAML 值转换器
 ├── Platforms/             各平台启动入口（Desktop/Android/iOS）
-├── Assets/                图标与资源
-├── key/                   Android 签名密钥（scassistant.keystore）
+├── Assets/                图标与资源（含启动屏 splash_screen.svg）
+│   ├── Icon.png           应用图标源（由 res/1.png 生成）
+│   ├── Icon.ico           桌面窗口图标（多尺寸透明 ICO）
+│   ├── Icons/             安卓自适应图标（icon.svg / icon_foreground.svg / icon_background.svg）
+│   └── Splash/            启动屏（splash_screen.svg，内嵌 1.png）
+├── key/                   Android 签名密钥（unobrowser.keystore）
 └── Properties/            launchSettings.json
+
+> 应用图标与启动屏均基于 `src/UnoBrowser.UnoApp/res/1.png` 生成。
 ```
 
 ---
@@ -98,15 +104,20 @@ dotnet build -f net10.0-android -c Release
 
 ### Android 签名
 
-签名密钥位于 `key/scassistant.keystore`（别名 `scassistant`）。相关配置在 `UnoBrowser.UnoApp.csproj`：
+签名密钥位于 `key/unobrowser.keystore`（别名 `unobrowser`）。相关配置在 `UnoBrowser.UnoApp.csproj`：
 
 ```xml
 <AndroidKeyStore>true</AndroidKeyStore>
-<AndroidSigningKeyStore>key\scassistant.keystore</AndroidSigningKeyStore>
-<AndroidSigningKeyAlias>scassistant</AndroidSigningKeyAlias>
+<AndroidSigningKeyStore>key\unobrowser.keystore</AndroidSigningKeyStore>
+<AndroidSigningKeyAlias>unobrowser</AndroidSigningKeyAlias>
+<AndroidSigningStorePass>unobrowser123</AndroidSigningStorePass>
+<AndroidSigningKeyPass>unobrowser123</AndroidSigningKeyPass>
 ```
 
+密钥详细信息（指纹、有效期等）见 `key/安卓key.txt`。
+
 > 密钥与证书绑定，重命名会导致发布签名失败，请勿修改文件名。
+> 使用此密钥签名的 APK 无法覆盖旧密钥（scassistant）签名的已发布版本，更新上架需保持同一签名。
 
 ### 数据目录
 
