@@ -145,6 +145,7 @@ public partial class App : Application
         services.AddSingleton<ISettingsService>(settingsService);
 
         // ViewModels
+        services.AddSingleton<BrowsingHistoryViewModel>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<DownloadListViewModel>();
 

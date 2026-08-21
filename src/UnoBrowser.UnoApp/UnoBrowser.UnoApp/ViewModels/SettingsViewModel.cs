@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 using UnoBrowser.UnoApp.Models;
 using UnoBrowser.UnoApp.Services;
-using UnoBrowser.UnoApp.Models;
 
 namespace UnoBrowser.UnoApp.ViewModels;
 
@@ -17,7 +16,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private readonly ISettingsService _settingsService;
     private readonly IBrowserProvider _browserProvider;
     private readonly DownloadListViewModel _downloadList;
-    private readonly IBrowsingHistoryService _browsingHistory;
+    private readonly BrowsingHistoryViewModel _browsingHistoryVm;
 
     private int _selectedTabIndex;
     private int _selectedUaIndex;
@@ -56,8 +55,11 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     // ===================== 历史记录 =====================
 
-    /// <summary>浏览历史记录（由 MainPage 绑定）。</summary>
-    public ObservableCollection<BrowsingHistoryRecord> History { get; set; } = new();
+    /// <summary>
+    /// 浏览历史记录 — 直接引用 BrowsingHistoryViewModel.History（单一数据源）。
+    /// 不再维护独立副本，消除手动同步。
+    /// </summary>
+    public ObservableCollection<BrowsingHistoryRecord> History => _browsingHistoryVm.History;
 
     /// <summary>导航到历史 URL 后关闭面板的回调。</summary>
     public Action<string>? OnNavigateToHistoryUrl { get; set; }
@@ -97,12 +99,13 @@ public class SettingsViewModel : INotifyPropertyChanged
     public SettingsViewModel(
         ISettingsService settingsService,
         IBrowserProvider browserProvider,
-        DownloadListViewModel downloadList)
+        DownloadListViewModel downloadList,
+        BrowsingHistoryViewModel browsingHistoryVm)
     {
         _settingsService = settingsService;
         _browserProvider = browserProvider;
         _downloadList = downloadList;
-        _browsingHistory = ServiceLocator.ServiceLocatorObj.GetRequiredService<IBrowsingHistoryService>();
+        _browsingHistoryVm = browsingHistoryVm;
 
         OpenDownloadFolderCommand = new RelayCommand(() =>
         {
@@ -124,8 +127,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         ClearHistoryCommand = new RelayCommand(() =>
         {
             LogHelper.Info("[设置] 清除浏览历史");
-            _browsingHistory.ClearHistory();
-            History.Clear();
+            _browsingHistoryVm.ClearHistoryCommand.Execute(null);
         });
         NavigateToHistoryCommand = new RelayCommand<string>(url =>
         {

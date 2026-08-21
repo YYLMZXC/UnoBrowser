@@ -12,6 +12,7 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly IBrowserProvider _browser;
     private readonly ISettingsService _settingsService;
+    private readonly BrowsingHistoryViewModel _browsingHistoryVm;
 
     // ===================== 浏览器相关 =====================
 
@@ -59,11 +60,6 @@ public class MainViewModel : INotifyPropertyChanged
         get => _windowTitle;
         set { _windowTitle = value; OnPropertyChanged(); }
     }
-
-    // ===================== 历史记录 =====================
-
-    private readonly IBrowsingHistoryService _browsingHistory;
-    public ObservableCollection<BrowsingHistoryRecord> History { get; } = new();
 
     // ===================== 设置面板 =====================
 
@@ -127,15 +123,14 @@ public class MainViewModel : INotifyPropertyChanged
 
     // ===================== 构造函数 =====================
 
-    public MainViewModel(IBrowserProvider browser, ISettingsService settingsService)
+    public MainViewModel(
+        IBrowserProvider browser,
+        ISettingsService settingsService,
+        BrowsingHistoryViewModel browsingHistoryVm)
     {
         _browser = browser;
         _settingsService = settingsService;
-        _browsingHistory = ServiceLocator.ServiceLocatorObj.GetRequiredService<IBrowsingHistoryService>();
-
-        // 从持久化存储加载浏览历史
-        foreach (var record in _browsingHistory.Records)
-            History.Add(record);
+        _browsingHistoryVm = browsingHistoryVm;
 
         // 创建 DownloadListViewModel 并传入下载管线（包含 Cookie 获取）
         DownloadList = new DownloadListViewModel(
@@ -144,7 +139,7 @@ public class MainViewModel : INotifyPropertyChanged
             browser);
 
         // 创建 SettingsViewModel
-        Settings = new SettingsViewModel(_settingsService, _browser, DownloadList);
+        Settings = new SettingsViewModel(_settingsService, _browser, DownloadList, _browsingHistoryVm);
 
         // 命令绑定
         NavigateHomeCommand = new RelayCommand(() => NavigateTo("https://www.scbbs.top/"));
@@ -173,14 +168,13 @@ public class MainViewModel : INotifyPropertyChanged
             UpdateCurrentTab(url);
             if (!string.IsNullOrWhiteSpace(url))
             {
-                _browsingHistory.AddRecord(url, _windowTitle);
-                SyncHistoryToUI();
+                _browsingHistoryVm.AddRecord(url, _windowTitle);
             }
         };
 
         // 记录默认首页到浏览历史
-        _browsingHistory.AddRecord(_currentUrl, "Bing");
-        SyncHistoryToUI();
+        _browsingHistoryVm.AddRecord(_currentUrl, "Bing");
+
         _browser.TitleChanged += (_, title) =>
         {
             var newTitle = string.IsNullOrWhiteSpace(title) ? "Uno浏览器" : $"Uno浏览器 - {title}";
@@ -189,7 +183,7 @@ public class MainViewModel : INotifyPropertyChanged
                 LogHelper.Info($"[主页] 页面标题变化 -> {title}");
                 WindowTitle = newTitle;
                 // 用最新标题更新浏览历史
-                UpdateHistoryTitle(CurrentUrl, title ?? "");
+                _browsingHistoryVm.UpdateTitle(CurrentUrl, title ?? "");
             }
         };
         _browser.LoadingStateChanged += (_, loading) =>
@@ -251,29 +245,6 @@ public class MainViewModel : INotifyPropertyChanged
         _browser.Initialize("https://www.bing.com");
         CurrentUrl = "https://www.bing.com";
         UpdateCurrentTab(CurrentUrl);
-    }
-
-    /// <summary>将持久化浏览历史同步到 SettingsViewModel 和 MainViewModel 的 UI 集合。</summary>
-    private void SyncHistoryToUI()
-    {
-        History.Clear();
-        foreach (var r in _browsingHistory.Records)
-            History.Add(r);
-
-        if (Settings is not null)
-        {
-            Settings.History.Clear();
-            foreach (var r in _browsingHistory.Records)
-                Settings.History.Add(r);
-        }
-    }
-
-    /// <summary>用最新标题更新浏览历史中的对应记录。</summary>
-    private void UpdateHistoryTitle(string url, string title)
-    {
-        if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(title)) return;
-        _browsingHistory.AddRecord(url, title);
-        SyncHistoryToUI();
     }
 
     /// <summary>根据当前 URL 更新底部导航高亮标签。</summary>

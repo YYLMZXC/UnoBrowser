@@ -106,33 +106,44 @@
                     <TextBlock Text="点击条目可跳转到对应页面。" FontSize="12"
                                Foreground="Gray" TextWrapping="Wrap" />
 
-                    <ListBox x:Name="HistoryListBox"
-                             ItemsSource="{Binding History}"
-                             MaxHeight="400"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             SelectionChanged="HistoryListBox_SelectionChanged">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Padding="8,4">
-                                    <TextBlock Text="{Binding Title}"
-                                               FontSize="13" FontWeight="SemiBold"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="{StaticResource PanelTextColor}" />
-                                    <TextBlock Text="{Binding Url}"
-                                               FontSize="11"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="Gray"
-                                               Margin="0,2,0,0" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <Border BorderBrush="#E0E0E0" BorderThickness="1"
+                            CornerRadius="6" Padding="8" Background="#FAFAFA">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                        <Button Content="清除历史记录" FontSize="12"
-                                Command="{Binding ClearHistoryCommand}" />
-                    </StackPanel>
+                            <ListBox x:Name="HistoryListBox"
+                                     Grid.Row="0"
+                                     ItemsSource="{Binding History}"
+                                     MaxHeight="400"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     SelectionChanged="HistoryListBox_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Padding="8,4">
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontSize="13" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{StaticResource PanelTextColor}" />
+                                            <TextBlock Text="{Binding Url}"
+                                                       FontSize="11"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="Gray"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                <Button Content="清除历史记录" FontSize="12"
+                                        Command="{Binding ClearHistoryCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Grid>

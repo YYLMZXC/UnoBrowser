@@ -29,17 +29,23 @@ public sealed partial class MainPage : Page
             LogHelper.Info("[主页] WebView2 控件已添加到 BrowserHost Grid");
         }
 
+        // 从 DI 获取 BrowsingHistoryViewModel（历史记录单一数据源）
+        var browsingHistoryVm = ServiceLocator.ServiceLocatorObj.GetRequiredService<BrowsingHistoryViewModel>();
+
         // 获取 ViewModel（DI 创建，含 SettingsViewModel）
         ViewModel = ServiceLocator.ServiceLocatorObj.GetRequiredService<MainViewModel>();
         DataContext = ViewModel;
 
-        // 绑定浏览历史到设置面板
+        // 绑定浏览历史导航回调（关闭设置面板并跳转）
+        browsingHistoryVm.OnNavigateRequested = url =>
+        {
+            ViewModel.NavigateTo(url);
+            ViewModel.IsSettingsVisible = false;
+        };
+
+        // 绑定设置面板的历史导航回调
         if (ViewModel.Settings is not null)
         {
-            // 将 MainViewModel 的历史同步到 SettingsViewModel 的集合（填充而非替换引用，保证绑定生效）
-            ViewModel.Settings.History.Clear();
-            foreach (var url in ViewModel.History)
-                ViewModel.Settings.History.Add(url);
             ViewModel.Settings.OnNavigateToHistoryUrl = url =>
             {
                 ViewModel.NavigateTo(url);
