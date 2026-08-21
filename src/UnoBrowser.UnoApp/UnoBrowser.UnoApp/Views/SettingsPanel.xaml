@@ -255,7 +255,7 @@
                             <Border Background="#E8E8E8" Height="1" Margin="0,4" />
 
                             <!-- 开源许可 -->
-                            <TextBlock Text="© 2024 UnoBrowser. All rights reserved."
+                            <TextBlock Text="© 2026 UnoBrowser. All rights reserved."
                                        FontSize="11" Foreground="#999999"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
