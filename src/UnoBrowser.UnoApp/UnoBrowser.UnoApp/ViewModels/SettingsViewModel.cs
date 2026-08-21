@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -21,6 +23,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private int _selectedTabIndex;
     private int _selectedUaIndex;
     private bool _isVisible;
+    private bool _isHistoryMultiSelectMode;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -57,7 +60,6 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     /// <summary>
     /// 浏览历史记录 — 直接引用 BrowsingHistoryViewModel.History（单一数据源）。
-    /// 不再维护独立副本，消除手动同步。
     /// </summary>
     public ObservableCollection<BrowsingHistoryRecord> History => _browsingHistoryVm.History;
 
@@ -66,6 +68,26 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     public IRelayCommand ClearHistoryCommand { get; }
     public IRelayCommand NavigateToHistoryCommand { get; }
+    public IRelayCommand ToggleMultiSelectCommand { get; }
+    public IRelayCommand DeleteSelectedHistoryCommand { get; }
+
+    /// <summary>是否处于历史记录多选模式。</summary>
+    public bool IsHistoryMultiSelectMode
+    {
+        get => _isHistoryMultiSelectMode;
+        set
+        {
+            if (_isHistoryMultiSelectMode != value)
+            {
+                _isHistoryMultiSelectMode = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MultiSelectButtonText));
+            }
+        }
+    }
+
+    /// <summary>多选按钮文字（随模式切换）。</summary>
+    public string MultiSelectButtonText => IsHistoryMultiSelectMode ? "取消多选" : "多选删除";
 
     /// <summary>当前选中的 UA 平台索引。</summary>
     public int SelectedUaIndex
@@ -134,6 +156,26 @@ public class SettingsViewModel : INotifyPropertyChanged
             if (url is null) return;
             LogHelper.Info($"[设置] 历史记录点击导航: {url}");
             OnNavigateToHistoryUrl?.Invoke(url);
+        });
+
+        ToggleMultiSelectCommand = new RelayCommand(() =>
+        {
+            IsHistoryMultiSelectMode = !IsHistoryMultiSelectMode;
+            LogHelper.Info($"[设置] 历史记录多选模式: {IsHistoryMultiSelectMode}");
+        });
+
+        DeleteSelectedHistoryCommand = new RelayCommand<IEnumerable<BrowsingHistoryRecord>>(records =>
+        {
+            var list = records?.ToList();
+            if (list is null || list.Count == 0)
+            {
+                LogHelper.Warn("[设置] 删除选中历史记录：未选中任何记录");
+                return;
+            }
+            var urls = list.Select(r => r.Url).ToList();
+            LogHelper.Info($"[设置] 删除选中历史记录: {urls.Count} 条");
+            _browsingHistoryVm.RemoveRecords(urls);
+            IsHistoryMultiSelectMode = false;
         });
 
         // 从已保存的设置初始化 UA

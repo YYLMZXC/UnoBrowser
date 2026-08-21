@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -18,6 +20,9 @@ public partial class SettingsPanel : UserControl
     private readonly SolidColorBrush _tabSelectedFg;
     private readonly SolidColorBrush _tabUnselectedFg;
 
+    /// <summary>记录当前选中的历史记录 URL（用于多选模式）。</summary>
+    private readonly HashSet<string> _selectedHistoryUrls = new();
+
     public SettingsPanel()
     {
         InitializeComponent();
@@ -27,7 +32,7 @@ public partial class SettingsPanel : UserControl
         _tabUnselectedBg = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
         _tabSelectedFg = new SolidColorBrush(Microsoft.UI.Colors.White);
         var mediumColor = (Windows.UI.Color)Application.Current.Resources["SystemBaseMediumColor"];
-        _tabUnselectedFg = new SolidColorBrush(mediumColor);
+        _tabUnselectedBg = new SolidColorBrush(mediumColor);
 
         // 监听 DataContext 变化以绑定 ViewModel 的 SelectedTabIndex
         DataContextChanged += OnDataContextChanged;
@@ -66,9 +71,17 @@ public partial class SettingsPanel : UserControl
     private void BindHistory()
     {
         if (_currentVm is null) return;
-        // 先置空再赋值，确保 ListBox 重新绑定到当前集合
+        LogHelper.Info($"[设置面板] BindHistory: History.Count={_currentVm.History.Count}");
+        // 先置空再赋值，确保 ListView 重新绑定到当前集合
         HistoryListBox.ItemsSource = null;
         HistoryListBox.ItemsSource = _currentVm.History;
+
+        // 打印每条记录用于调试
+        for (int i = 0; i < _currentVm.History.Count; i++)
+        {
+            var r = _currentVm.History[i];
+            LogHelper.Info($"[设置面板]   [{i}] Url={r.Url}, Title={r.Title}, Time={r.Time:yyyy-MM-dd HH:mm:ss}");
+        }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -107,12 +120,61 @@ public partial class SettingsPanel : UserControl
             vm.SelectedTabIndex = 2;
     }
 
+    /// <summary>ListView 选择变化事件（多选模式下记录选中项）。</summary>
     private void HistoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (HistoryListBox.SelectedItem is BrowsingHistoryRecord record && DataContext is SettingsViewModel vm)
+        if (_currentVm is null) return;
+
+        // 多选模式：记录选中/取消选中的 URL
+        if (_currentVm.IsHistoryMultiSelectMode)
         {
-            HistoryListBox.SelectedIndex = -1; // 取消选中，允许重复点击
-            vm.NavigateToHistoryCommand.Execute(record.Url);
+            // 移除取消选中的
+            foreach (var item in e.RemovedItems)
+            {
+                if (item is BrowsingHistoryRecord record)
+                {
+                    _selectedHistoryUrls.Remove(record.Url);
+                    LogHelper.Info($"[设置面板] 多选取消: {record.Url}");
+                }
+            }
+            // 添加新选中的
+            foreach (var item in e.AddedItems)
+            {
+                if (item is BrowsingHistoryRecord record)
+                {
+                    _selectedHistoryUrls.Add(record.Url);
+                    LogHelper.Info($"[设置面板] 多选选中: {record.Url}");
+                }
+            }
+            LogHelper.Info($"[设置面板] 当前选中 {_selectedHistoryUrls.Count} 条");
+
+            // 将选中项传给删除命令
+            var selectedRecords = _currentVm.History
+                .Where(r => _selectedHistoryUrls.Contains(r.Url))
+                .ToList();
+            _currentVm.DeleteSelectedHistoryCommand.Execute(selectedRecords);
+            _selectedHistoryUrls.Clear();
+        }
+        else
+        {
+            // 单选模式：直接导航
+            if (HistoryListBox.SelectedItem is BrowsingHistoryRecord record)
+            {
+                HistoryListBox.SelectedIndex = -1; // 取消选中，允许重复点击
+                _currentVm.NavigateToHistoryCommand.Execute(record.Url);
+            }
+        }
+    }
+
+    /// <summary>单条历史记录删除按钮点击。</summary>
+    private void DeleteSingleHistory_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string url && DataContext is SettingsViewModel vm)
+        {
+            LogHelper.Info($"[设置面板] 单条删除: {url}");
+            // 通过 NavigateToHistoryCommand 同级的 BrowsingHistoryViewModel 删除
+            vm.DeleteSelectedHistoryCommand.Execute(
+                vm.History.Where(r => r.Url == url).ToList());
         }
     }
 

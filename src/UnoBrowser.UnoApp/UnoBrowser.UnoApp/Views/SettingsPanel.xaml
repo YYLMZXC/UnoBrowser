@@ -110,36 +110,72 @@
                             CornerRadius="6" Padding="8" Background="#FAFAFA">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <ListBox x:Name="HistoryListBox"
-                                     Grid.Row="0"
-                                     ItemsSource="{Binding History}"
-                                     MaxHeight="400"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     SelectionChanged="HistoryListBox_SelectionChanged">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Padding="8,4">
-                                            <TextBlock Text="{Binding Title}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Foreground="{StaticResource PanelTextColor}" />
-                                            <TextBlock Text="{Binding Url}"
-                                                       FontSize="11"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Foreground="Gray"
-                                                       Margin="0,2,0,0" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <!-- 工具栏：多选切换 + 删除选中 -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
+                                <Button Content="{Binding MultiSelectButtonText}" FontSize="11" Padding="8,4"
+                                        Command="{Binding ToggleMultiSelectCommand}" />
+                                <Button Content="删除选中" FontSize="11" Padding="8,4"
+                                        Command="{Binding DeleteSelectedHistoryCommand}"
+                                        CommandParameter="{Binding History}"
+                                        Visibility="{Binding IsHistoryMultiSelectMode, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            </StackPanel>
 
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                                <Button Content="清除历史记录" FontSize="12"
+                            <!-- 历史记录列表 -->
+                            <ListView x:Name="HistoryListBox"
+                                      Grid.Row="1"
+                                      MaxHeight="400"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      SelectionMode="Multiple"
+                                      SelectionChanged="HistoryListBox_SelectionChanged">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BrowsingHistoryRecord">
+                                        <Grid Padding="8,4" ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- 左侧：标题 + URL + 时间 -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="13" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{StaticResource PanelTextColor}" />
+                                                <TextBlock Text="{Binding Url}"
+                                                           FontSize="11"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Margin="0,2,0,0" />
+                                                <TextBlock Text="{Binding TimeDisplay}"
+                                                           FontSize="10" Foreground="#999999"
+                                                           Margin="0,2,0,0" />
+                                            </StackPanel>
+
+                                            <!-- 右侧：单条删除按钮 -->
+                                            <Button Grid.Column="1"
+                                                    Content="✕" Width="24" Height="24"
+                                                    FontSize="11" Padding="0"
+                                                    VerticalAlignment="Center"
+                                                    Background="Transparent"
+                                                    Foreground="#999999"
+                                                    Click="DeleteSingleHistory_Click"
+                                                    Tag="{Binding Url}"
+                                                    ToolTipService.ToolTip="删除此记录" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+
+                            <!-- 底部：清除全部 -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                <Button Content="清除全部历史" FontSize="12"
                                         Command="{Binding ClearHistoryCommand}" />
                             </StackPanel>
                         </Grid>
