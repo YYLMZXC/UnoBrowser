@@ -18,7 +18,7 @@
 - **UA 自适应**：可在「跟随系统 / Windows / 安卓 / iPhone / Linux / macOS」之间切换
 - **下载管理**：拦截页面下载请求，支持下载列表查看、打开下载文件夹、清除下载历史
 - **浏览历史**：记录访问历史，支持点击跳转与一键清除
-- **设置面板**：浏览器设置、下载管理、历史记录三个标签页，覆盖在主界面之上（无遮罩）
+- **设置面板**：浏览器标识、下载管理、历史记录、关于四个标签页，覆盖在主界面之上（无遮罩），支持滚动浏览
 
 ---
 
@@ -42,11 +42,11 @@ src/UnoBrowser.UnoApp/UnoBrowser.UnoApp/
 ├── UnoBrowser.UnoApp.csproj 项目文件（含 Android 签名配置）
 ├── Views/                   UI 页面
 │   ├── MainPage.xaml(.cs)   主界面：工具栏 + 浏览器宿主
-│   ├── SettingsPanel.xaml   设置/下载/历史面板
+│   ├── SettingsPanel.xaml   设置面板（含浏览器标识、下载管理、历史记录、关于）
 │   └── DownloadListPanel.xaml
 ├── ViewModels/             MVVM 视图模型
 │   ├── MainViewModel.cs     主页导航、地址栏、当前标签
-│   ├── SettingsViewModel.cs 设置 + 下载 + 历史整合
+│   ├── SettingsViewModel.cs 设置 + 下载 + 历史 + 关于整合
 │   └── DownloadListViewModel.cs
 ├── Services/               服务层
 │   ├── BrowserProvider.cs   WebView2 生命周期与事件管理
