@@ -62,6 +62,11 @@
                         Click="HistoryTab_Click"
                         Background="Transparent"
                         Foreground="{StaticResource TabUnselectedFg}" />
+                <Button x:Name="AboutTab"
+                        Content="关于" FontSize="13" Padding="12,6"
+                        Click="AboutTab_Click"
+                        Background="Transparent"
+                        Foreground="{StaticResource TabUnselectedFg}" />
             </StackPanel>
 
             <!-- 内容区域 -->
@@ -97,6 +102,56 @@
                         <Button Content="清除下载记录" FontSize="12"
                                 Command="{Binding ClearDownloadHistoryCommand}" />
                     </StackPanel>
+                </StackPanel>
+
+                <!-- Tab 3: 关于 -->
+                <StackPanel x:Name="AboutPanel" Spacing="12" Visibility="Collapsed">
+                    <TextBlock Text="关于 Uno浏览器" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource PanelTextColor}" />
+
+                    <Border BorderBrush="#E0E0E0" BorderThickness="1"
+                            CornerRadius="6" Padding="16" Background="#FAFAFA">
+                        <StackPanel Spacing="12">
+                            <!-- 应用名称 + 版本 -->
+                            <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                <TextBlock Text="🌐" FontSize="36" HorizontalAlignment="Center" />
+                                <TextBlock Text="Uno浏览器" FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{StaticResource PanelTextColor}" />
+                                <TextBlock x:Name="VersionText" FontSize="12" Foreground="Gray"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+
+                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
+
+                            <!-- 描述 -->
+                            <TextBlock Text="基于 Uno Platform 构建的跨平台浏览器，支持 Windows、Android、iOS、macOS。"
+                                       FontSize="13" TextWrapping="Wrap"
+                                       Foreground="{StaticResource PanelTextColor}" />
+n                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
+n                            <!-- 技术栈 -->
+                            <TextBlock Text="技术栈" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PanelTextColor}" />
+                            <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                <Run Text="• " /><Run Text="Uno Platform" FontWeight="SemiBold" /><Run Text=" — 跨平台 UI 框架" />
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                <Run Text="• " /><Run Text="WebView2" FontWeight="SemiBold" /><Run Text=" — 桌面端浏览器内核" />
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                <Run Text="• " /><Run Text="CommunityToolkit.Mvvm" FontWeight="SemiBold" /><Run Text=" — MVVM 框架" />
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
+                                <Run Text="• " /><Run Text="Newtonsoft.Json" FontWeight="SemiBold" /><Run Text=" — JSON 序列化" />
+                            </TextBlock>
+
+                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
+n                            <!-- 开源许可 -->
+                            <TextBlock Text="© 2024 UnoBrowser. All rights reserved."
+                                       FontSize="11" Foreground="#999999"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <!-- Tab 2: 历史记录 -->

@@ -34,6 +34,14 @@ public partial class SettingsPanel : UserControl
         var mediumColor = (Windows.UI.Color)Application.Current.Resources["SystemBaseMediumColor"];
         _tabUnselectedBg = new SolidColorBrush(mediumColor);
 
+        // 显示版本号
+        try
+        {
+            var version = typeof(App).Assembly.GetName().Version?.ToString() ?? "1.0";
+            VersionText.Text = $"版本 {version}";
+        }
+        catch { VersionText.Text = "版本 1.0"; }
+
         // 监听 DataContext 变化以绑定 ViewModel 的 SelectedTabIndex
         DataContextChanged += OnDataContextChanged;
         Loaded += OnLoaded;
@@ -120,6 +128,13 @@ public partial class SettingsPanel : UserControl
             vm.SelectedTabIndex = 2;
     }
 
+    private void AboutTab_Click(object sender, RoutedEventArgs e)
+    {
+        LogHelper.Info("[设置面板] 切换到关于标签");
+        if (DataContext is SettingsViewModel vm)
+            vm.SelectedTabIndex = 3;
+    }
+
     /// <summary>ListView 选择变化事件（多选模式下记录选中项）。</summary>
     private void HistoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -183,6 +198,7 @@ public partial class SettingsPanel : UserControl
         BrowserSettingsPanel.Visibility = index == 0 ? Visibility.Visible : Visibility.Collapsed;
         DownloadSettingsPanel.Visibility = index == 1 ? Visibility.Visible : Visibility.Collapsed;
         HistorySettingsPanel.Visibility = index == 2 ? Visibility.Visible : Visibility.Collapsed;
+        AboutPanel.Visibility = index == 3 ? Visibility.Visible : Visibility.Collapsed;
 
         BrowserSettingsTab.Background = index == 0 ? _tabSelectedBg : _tabUnselectedBg;
         BrowserSettingsTab.Foreground = index == 0 ? _tabSelectedFg : _tabUnselectedFg;
@@ -192,5 +208,8 @@ public partial class SettingsPanel : UserControl
 
         HistoryTab.Background = index == 2 ? _tabSelectedBg : _tabUnselectedBg;
         HistoryTab.Foreground = index == 2 ? _tabSelectedFg : _tabUnselectedFg;
+
+        AboutTab.Background = index == 3 ? _tabSelectedBg : _tabUnselectedBg;
+        AboutTab.Foreground = index == 3 ? _tabSelectedFg : _tabUnselectedFg;
     }
 }
