@@ -107,6 +107,7 @@
                                Foreground="Gray" TextWrapping="Wrap" />
 
                     <ListBox x:Name="HistoryListBox"
+                             ItemsSource="{Binding History}"
                              MaxHeight="400"
                              Background="Transparent"
                              BorderThickness="0"

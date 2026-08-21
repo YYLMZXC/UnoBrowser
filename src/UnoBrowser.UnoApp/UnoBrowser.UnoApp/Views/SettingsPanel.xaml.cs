@@ -31,6 +31,7 @@ public partial class SettingsPanel : UserControl
 
         // 监听 DataContext 变化以绑定 ViewModel 的 SelectedTabIndex
         DataContextChanged += OnDataContextChanged;
+        Loaded += OnLoaded;
     }
 
     private SettingsViewModel? _currentVm;
@@ -49,9 +50,25 @@ public partial class SettingsPanel : UserControl
             _currentVm.PropertyChanged += OnViewModelPropertyChanged;
             // 同步当前标签状态
             SetActiveTab(_currentVm.SelectedTabIndex);
-            // 强制刷新历史列表绑定
-            HistoryListBox.ItemsSource = _currentVm.History;
+            BindHistory();
         }
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        // DataContextChanged 在 Uno XAML 绑定场景下可能不触发，Loaded 作为兜底
+        if (_currentVm is null)
+            _currentVm = DataContext as SettingsViewModel;
+        if (_currentVm is not null)
+            BindHistory();
+    }
+
+    private void BindHistory()
+    {
+        if (_currentVm is null) return;
+        // 先置空再赋值，确保 ListBox 重新绑定到当前集合
+        HistoryListBox.ItemsSource = null;
+        HistoryListBox.ItemsSource = _currentVm.History;
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
