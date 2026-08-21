@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using UnoBrowser.UnoApp.Models;
 
 namespace UnoBrowser.UnoApp.Services;
 
@@ -12,12 +13,12 @@ namespace UnoBrowser.UnoApp.Services;
 public class BrowsingHistoryService : IBrowsingHistoryService
 {
     private readonly string _filePath;
-    private List<string> _records = new();
+    private List<BrowsingHistoryRecord> _records = new();
     private const int MaxRecords = 200;
 
     public event Action? HistoryChanged;
 
-    public IReadOnlyList<string> Records => _records.AsReadOnly();
+    public IReadOnlyList<BrowsingHistoryRecord> Records => _records.AsReadOnly();
 
     public BrowsingHistoryService()
     {
@@ -32,18 +33,34 @@ public class BrowsingHistoryService : IBrowsingHistoryService
             if (!File.Exists(_filePath))
             {
                 LogHelper.Info("[浏览历史] 文件不存在，初始化为空列表");
-                _records = new List<string>();
+                _records = new List<BrowsingHistoryRecord>();
                 return;
             }
 
             var json = File.ReadAllText(_filePath);
-            _records = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
+
+            // 兼容旧版纯字符串格式
+            var loaded = JsonConvert.DeserializeObject<List<BrowsingHistoryRecord>>(json);
+            if (loaded is not null)
+            {
+                _records = loaded;
+            }
+            else
+            {
+                // 尝试作为旧版字符串列表加载
+                var legacyRecords = JsonConvert.DeserializeObject<List<string>>(json);
+                _records = legacyRecords?
+                    .Where(u => !string.IsNullOrWhiteSpace(u))
+                    .Select(u => new BrowsingHistoryRecord { Url = u, Title = "" })
+                    .ToList() ?? new List<BrowsingHistoryRecord>();
+            }
+
             LogHelper.Info($"[浏览历史] 加载成功，共 {_records.Count} 条记录");
         }
         catch (Exception ex)
         {
             LogHelper.Error("[浏览历史] 加载失败，将重置为空列表", ex);
-            _records = new List<string>();
+            _records = new List<BrowsingHistoryRecord>();
         }
     }
 
@@ -66,16 +83,25 @@ public class BrowsingHistoryService : IBrowsingHistoryService
 
     /// <summary>
     /// 添加 URL 到浏览历史（去重，最新的在最前面）。
+    /// 如果已存在相同 URL，更新标题。
     /// </summary>
-    public void AddRecord(string url)
+    public void AddRecord(string url, string title = "")
     {
         if (string.IsNullOrWhiteSpace(url)) return;
 
         // 去重：移除已有的相同 URL
-        _records.Remove(url);
+        var existing = _records.FirstOrDefault(r => r.Url == url);
+        if (existing is not null)
+        {
+            _records.Remove(existing);
+        }
 
         // 插入到最前面
-        _records.Insert(0, url);
+        _records.Insert(0, new BrowsingHistoryRecord
+        {
+            Url = url,
+            Title = !string.IsNullOrWhiteSpace(title) ? title : existing?.Title ?? ""
+        });
 
         // 限制最大记录数
         while (_records.Count > MaxRecords)

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 using UnoBrowser.UnoApp.Models;
 using UnoBrowser.UnoApp.Services;
+using UnoBrowser.UnoApp.Models;
 
 namespace UnoBrowser.UnoApp.ViewModels;
 
@@ -56,7 +57,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     // ===================== 历史记录 =====================
 
     /// <summary>浏览历史记录（由 MainPage 绑定）。</summary>
-    public ObservableCollection<string> History { get; set; } = new();
+    public ObservableCollection<BrowsingHistoryRecord> History { get; set; } = new();
 
     /// <summary>导航到历史 URL 后关闭面板的回调。</summary>
     public Action<string>? OnNavigateToHistoryUrl { get; set; }

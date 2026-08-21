@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using UnoBrowser.UnoApp.Models;
 using UnoBrowser.UnoApp.Services;
 using UnoBrowser.UnoApp.ViewModels;
 
@@ -91,10 +92,10 @@ public partial class SettingsPanel : UserControl
 
     private void HistoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (HistoryListBox.SelectedItem is string url && DataContext is SettingsViewModel vm)
+        if (HistoryListBox.SelectedItem is BrowsingHistoryRecord record && DataContext is SettingsViewModel vm)
         {
             HistoryListBox.SelectedIndex = -1; // 取消选中，允许重复点击
-            vm.NavigateToHistoryCommand.Execute(url);
+            vm.NavigateToHistoryCommand.Execute(record.Url);
         }
     }
 

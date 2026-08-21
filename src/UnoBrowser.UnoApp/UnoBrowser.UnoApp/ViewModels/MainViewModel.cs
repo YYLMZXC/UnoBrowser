@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
+using UnoBrowser.UnoApp.Models;
 using UnoBrowser.UnoApp.Services;
 
 namespace UnoBrowser.UnoApp.ViewModels;
@@ -62,7 +63,7 @@ public class MainViewModel : INotifyPropertyChanged
     // ===================== 历史记录 =====================
 
     private readonly IBrowsingHistoryService _browsingHistory;
-    public ObservableCollection<string> History { get; } = new();
+    public ObservableCollection<BrowsingHistoryRecord> History { get; } = new();
 
     // ===================== 设置面板 =====================
 
@@ -133,8 +134,8 @@ public class MainViewModel : INotifyPropertyChanged
         _browsingHistory = ServiceLocator.ServiceLocatorObj.GetRequiredService<IBrowsingHistoryService>();
 
         // 从持久化存储加载浏览历史
-        foreach (var url in _browsingHistory.Records)
-            History.Add(url);
+        foreach (var record in _browsingHistory.Records)
+            History.Add(record);
 
         // 创建 DownloadListViewModel 并传入下载管线（包含 Cookie 获取）
         DownloadList = new DownloadListViewModel(
@@ -172,13 +173,13 @@ public class MainViewModel : INotifyPropertyChanged
             UpdateCurrentTab(url);
             if (!string.IsNullOrWhiteSpace(url))
             {
-                _browsingHistory.AddRecord(url);
+                _browsingHistory.AddRecord(url, _windowTitle);
                 SyncHistoryToUI();
             }
         };
 
         // 记录默认首页到浏览历史
-        _browsingHistory.AddRecord(_currentUrl);
+        _browsingHistory.AddRecord(_currentUrl, "Bing");
         SyncHistoryToUI();
         _browser.TitleChanged += (_, title) =>
         {
@@ -187,6 +188,8 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 LogHelper.Info($"[主页] 页面标题变化 -> {title}");
                 WindowTitle = newTitle;
+                // 用最新标题更新浏览历史
+                UpdateHistoryTitle(CurrentUrl, title ?? "");
             }
         };
         _browser.LoadingStateChanged += (_, loading) =>
@@ -263,6 +266,14 @@ public class MainViewModel : INotifyPropertyChanged
             foreach (var r in _browsingHistory.Records)
                 Settings.History.Add(r);
         }
+    }
+
+    /// <summary>用最新标题更新浏览历史中的对应记录。</summary>
+    private void UpdateHistoryTitle(string url, string title)
+    {
+        if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(title)) return;
+        _browsingHistory.AddRecord(url, title);
+        SyncHistoryToUI();
     }
 
     /// <summary>根据当前 URL 更新底部导航高亮标签。</summary>
