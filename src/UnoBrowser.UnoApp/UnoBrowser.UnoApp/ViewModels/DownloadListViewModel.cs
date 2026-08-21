@@ -241,7 +241,7 @@ public partial class DownloadListViewModel : ViewModelBase
         }
     }
 
-    /// <summary>清除所有下载历史记录。</summary>
+    /// <summary>清除所有下载记录。</summary>
     [RelayCommand]
     private void DeleteAllRecords()
     {
@@ -251,7 +251,7 @@ public partial class DownloadListViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRecords));
     }
 
-    /// <summary>清除所有下载历史记录（供 SettingsViewModel 调用）。</summary>
+    /// <summary>清除所有下载记录（供 SettingsViewModel 调用）。</summary>
     public void ClearHistory()
     {
         DeleteAllRecords();
