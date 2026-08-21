@@ -10,17 +10,13 @@
     d:DesignWidth="400" d:DesignHeight="600">
 
     <UserControl.Resources>
-        <!-- 标签选中/未选中颜色 -->
         <SolidColorBrush x:Key="TabSelectedBg" Color="#0078D4" />
         <SolidColorBrush x:Key="TabUnselectedBg" Color="Transparent" />
         <SolidColorBrush x:Key="TabSelectedFg" Color="White" />
         <SolidColorBrush x:Key="TabUnselectedFg" Color="#666666" />
-
-        <!-- 白色面板下的固定文字颜色 -->
         <SolidColorBrush x:Key="PanelTextColor" Color="#1A1A1A" />
     </UserControl.Resources>
 
-    <!-- 右侧滑出面板（固定白色，像浏览器设置弹层） -->
     <Border Background="White"
             BorderBrush="#E0E0E0"
             BorderThickness="1,0,0,0"
@@ -30,7 +26,7 @@
             MaxWidth="420">
 
         <Grid RowDefinitions="Auto,Auto,*">
-            <!-- Header: 标题 + 关闭按钮 -->
+            <!-- Header -->
             <Grid Grid.Row="0" Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -104,6 +100,86 @@
                     </StackPanel>
                 </StackPanel>
 
+                <!-- Tab 2: 历史记录 -->
+                <StackPanel x:Name="HistorySettingsPanel" Spacing="8" Visibility="Collapsed">
+                    <TextBlock Text="浏览历史" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource PanelTextColor}" />
+                    <TextBlock Text="点击条目可跳转到对应页面。" FontSize="12"
+                               Foreground="Gray" TextWrapping="Wrap" />
+
+                    <Border BorderBrush="#E0E0E0" BorderThickness="1"
+                            CornerRadius="6" Padding="8" Background="#FAFAFA">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- 工具栏 -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
+                                <Button Content="{Binding MultiSelectButtonText}" FontSize="11" Padding="8,4"
+                                        Command="{Binding ToggleMultiSelectCommand}" />
+                                <Button Content="删除选中" FontSize="11" Padding="8,4"
+                                        Command="{Binding DeleteSelectedHistoryCommand}"
+                                        CommandParameter="{Binding History}"
+                                        Visibility="{Binding IsHistoryMultiSelectMode, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            </StackPanel>
+
+                            <!-- 历史记录列表 -->
+                            <ListView x:Name="HistoryListBox"
+                                      Grid.Row="1"
+                                      MaxHeight="400"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      SelectionMode="Multiple"
+                                      SelectionChanged="HistoryListBox_SelectionChanged">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BrowsingHistoryRecord">
+                                        <Grid Padding="8,4" ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="13" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{StaticResource PanelTextColor}" />
+                                                <TextBlock Text="{Binding Url}"
+                                                           FontSize="11"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Margin="0,2,0,0" />
+                                                <TextBlock Text="{Binding TimeDisplay}"
+                                                           FontSize="10" Foreground="#999999"
+                                                           Margin="0,2,0,0" />
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    Content="✕" Width="24" Height="24"
+                                                    FontSize="11" Padding="0"
+                                                    VerticalAlignment="Center"
+                                                    Background="Transparent"
+                                                    Foreground="#999999"
+                                                    Click="DeleteSingleHistory_Click"
+                                                    Tag="{Binding Url}"
+                                                    ToolTipService.ToolTip="删除此记录" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+
+                            <!-- 底部 -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                <Button Content="清除全部历史" FontSize="12"
+                                        Command="{Binding ClearHistoryCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
                 <!-- Tab 3: 关于 -->
                 <StackPanel x:Name="AboutPanel" Spacing="12" Visibility="Collapsed">
                     <TextBlock Text="关于 Uno浏览器" FontSize="15" FontWeight="SemiBold"
@@ -128,8 +204,10 @@
                             <TextBlock Text="基于 Uno Platform 构建的跨平台浏览器，支持 Windows、Android、iOS、macOS。"
                                        FontSize="13" TextWrapping="Wrap"
                                        Foreground="{StaticResource PanelTextColor}" />
-n                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
-n                            <!-- 技术栈 -->
+
+                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
+
+                            <!-- 技术栈 -->
                             <TextBlock Text="技术栈" FontSize="13" FontWeight="SemiBold"
                                        Foreground="{StaticResource PanelTextColor}" />
                             <TextBlock FontSize="12" Foreground="#555555" TextWrapping="Wrap">
@@ -146,94 +224,41 @@
                             </TextBlock>
 
                             <Border Background="#E8E8E8" Height="1" Margin="0,4" />
-n                            <!-- 开源许可 -->
+
+                            <!-- 项目地址 -->
+                            <TextBlock Text="项目地址" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PanelTextColor}" />
+                            <StackPanel Spacing="4">
+                                <HyperlinkButton Content="cnb.cool/SurvivalcraftTool/SCAssistant"
+                                                 NavigateUri="https://cnb.cool/SurvivalcraftTool/SCAssistant"
+                                                 FontSize="12" Padding="0" HorizontalAlignment="Left">
+                                    <HyperlinkButton.Foreground>
+                                        <SolidColorBrush Color="#0078D4" />
+                                    </HyperlinkButton.Foreground>
+                                </HyperlinkButton>
+                                <HyperlinkButton Content="gitee.com/yylmzxc/SCAssistant"
+                                                 NavigateUri="https://gitee.com/yylmzxc/SCAssistant"
+                                                 FontSize="12" Padding="0" HorizontalAlignment="Left">
+                                    <HyperlinkButton.Foreground>
+                                        <SolidColorBrush Color="#0078D4" />
+                                    </HyperlinkButton.Foreground>
+                                </HyperlinkButton>
+                                <HyperlinkButton Content="github.com/YYLMZXC/SCAssistant"
+                                                 NavigateUri="https://github.com/YYLMZXC/SCAssistant"
+                                                 FontSize="12" Padding="0" HorizontalAlignment="Left">
+                                    <HyperlinkButton.Foreground>
+                                        <SolidColorBrush Color="#0078D4" />
+                                    </HyperlinkButton.Foreground>
+                                </HyperlinkButton>
+                            </StackPanel>
+
+                            <Border Background="#E8E8E8" Height="1" Margin="0,4" />
+
+                            <!-- 开源许可 -->
                             <TextBlock Text="© 2024 UnoBrowser. All rights reserved."
                                        FontSize="11" Foreground="#999999"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Tab 2: 历史记录 -->
-                <StackPanel x:Name="HistorySettingsPanel" Spacing="8" Visibility="Collapsed">
-                    <TextBlock Text="浏览历史" FontSize="15" FontWeight="SemiBold"
-                               Foreground="{StaticResource PanelTextColor}" />
-                    <TextBlock Text="点击条目可跳转到对应页面。" FontSize="12"
-                               Foreground="Gray" TextWrapping="Wrap" />
-
-                    <Border BorderBrush="#E0E0E0" BorderThickness="1"
-                            CornerRadius="6" Padding="8" Background="#FAFAFA">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <!-- 工具栏：多选切换 + 删除选中 -->
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
-                                <Button Content="{Binding MultiSelectButtonText}" FontSize="11" Padding="8,4"
-                                        Command="{Binding ToggleMultiSelectCommand}" />
-                                <Button Content="删除选中" FontSize="11" Padding="8,4"
-                                        Command="{Binding DeleteSelectedHistoryCommand}"
-                                        CommandParameter="{Binding History}"
-                                        Visibility="{Binding IsHistoryMultiSelectMode, Converter={StaticResource BoolToVisibilityConverter}}" />
-                            </StackPanel>
-
-                            <!-- 历史记录列表 -->
-                            <ListView x:Name="HistoryListBox"
-                                      Grid.Row="1"
-                                      MaxHeight="400"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      SelectionMode="Multiple"
-                                      SelectionChanged="HistoryListBox_SelectionChanged">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:BrowsingHistoryRecord">
-                                        <Grid Padding="8,4" ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <!-- 左侧：标题 + URL + 时间 -->
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Title}"
-                                                           FontSize="13" FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Foreground="{StaticResource PanelTextColor}" />
-                                                <TextBlock Text="{Binding Url}"
-                                                           FontSize="11"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Foreground="Gray"
-                                                           Margin="0,2,0,0" />
-                                                <TextBlock Text="{Binding TimeDisplay}"
-                                                           FontSize="10" Foreground="#999999"
-                                                           Margin="0,2,0,0" />
-                                            </StackPanel>
-
-                                            <!-- 右侧：单条删除按钮 -->
-                                            <Button Grid.Column="1"
-                                                    Content="✕" Width="24" Height="24"
-                                                    FontSize="11" Padding="0"
-                                                    VerticalAlignment="Center"
-                                                    Background="Transparent"
-                                                    Foreground="#999999"
-                                                    Click="DeleteSingleHistory_Click"
-                                                    Tag="{Binding Url}"
-                                                    ToolTipService.ToolTip="删除此记录" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-
-                            <!-- 底部：清除全部 -->
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                                <Button Content="清除全部历史" FontSize="12"
-                                        Command="{Binding ClearHistoryCommand}" />
-                            </StackPanel>
-                        </Grid>
                     </Border>
                 </StackPanel>
             </Grid>
