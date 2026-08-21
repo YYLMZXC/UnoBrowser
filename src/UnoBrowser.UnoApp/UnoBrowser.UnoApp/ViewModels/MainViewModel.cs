@@ -179,6 +179,12 @@ public class MainViewModel : INotifyPropertyChanged
                     History.Add(r);
             }
         };
+
+        // 记录默认首页到浏览历史
+        _browsingHistory.AddRecord(_currentUrl);
+        History.Clear();
+        foreach (var r in _browsingHistory.Records)
+            History.Add(r);
         _browser.TitleChanged += (_, title) =>
         {
             var newTitle = string.IsNullOrWhiteSpace(title) ? "Uno浏览器" : $"Uno浏览器 - {title}";
