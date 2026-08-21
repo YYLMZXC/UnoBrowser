@@ -322,6 +322,42 @@ public partial class DownloadListViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRecords));
     }
 
+    /// <summary>删除本地文件并移除记录。</summary>
+    [RelayCommand]
+    private void DeleteFile(DownloadRecord? record)
+    {
+        record ??= SelectedRecord;
+        if (record == null)
+        {
+            LogHelper.Warn("[下载列表] 删除文件 - 未选中任何记录");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(record.LocalPath))
+        {
+            try
+            {
+                if (File.Exists(record.LocalPath))
+                {
+                    File.Delete(record.LocalPath);
+                    LogHelper.Info($"[下载列表] 已删除本地文件: {record.LocalPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error($"[下载列表] 删除文件失败: {record.LocalPath}", ex);
+            }
+        }
+
+        // 移除记录
+        if (record.State == DownloadState.Downloading)
+            _downloadService.CancelDownload(record.Id);
+        _historyService.RemoveRecord(record);
+        Records.Remove(record);
+        if (SelectedRecord == record) SelectedRecord = null;
+        OnPropertyChanged(nameof(HasRecords));
+    }
+
 #if ANDROID
     private static void OpenFileOnAndroid(string filePath)
     {

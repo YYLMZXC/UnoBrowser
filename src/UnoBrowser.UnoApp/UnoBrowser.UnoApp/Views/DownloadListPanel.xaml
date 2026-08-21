@@ -31,14 +31,10 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
-                <TextBlock Grid.Column="0" Text="下载文件列表" FontSize="16" FontWeight="Bold"
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <TextBlock Text="下载文件列表" FontSize="16" FontWeight="Bold"
                            Foreground="{StaticResource PanelTextColor}"
                            VerticalAlignment="Center" />
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="打开文件夹" Command="{Binding OpenDownloadsFolderCommand}" />
-                    <Button Content="清空" Command="{Binding DeleteAllRecordsCommand}" />
-                </StackPanel>
             </Grid>
 
             <!-- 空状态提示 -->
@@ -119,6 +115,11 @@
                                     <Button Content="删除" FontSize="12" Padding="10,2"
                                             Command="{Binding DataContext.DeleteRecordCommand, ElementName=RootList}"
                                             CommandParameter="{Binding}" />
+                                    <!-- 删除本地文件 -->
+                                    <Button Content="删除文件" FontSize="12" Padding="10,2"
+                                            Command="{Binding DataContext.DeleteFileCommand, ElementName=RootList}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding CanOpen, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
