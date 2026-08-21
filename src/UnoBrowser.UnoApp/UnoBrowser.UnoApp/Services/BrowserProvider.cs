@@ -1195,18 +1195,24 @@ public class BrowserProvider : IBrowserProvider
         }
     }
 
-    /// <summary>从 Content-Disposition 响应头解析文件名（支持 filename / filename*）。</summary>
+    /// <summary>从 Content-Disposition 响应头解析文件名（支持 filename / filename*）。
+    /// filename* 是原始编码值，需要 URL 解码；filename 已由 .NET 自动解码，直接使用。</summary>
     private static string? ParseFileNameFromContentDisposition(string contentDisposition)
     {
         if (string.IsNullOrWhiteSpace(contentDisposition)) return null;
         try
         {
             var cd = System.Net.Http.Headers.ContentDispositionHeaderValue.Parse(contentDisposition);
-            var name = cd.FileNameStar ?? cd.FileName;
-            if (!string.IsNullOrWhiteSpace(name))
+            // 优先使用 filename*（RFC 5987，原始编码值，需要 URL 解码）
+            if (!string.IsNullOrWhiteSpace(cd.FileNameStar))
             {
-                name = name.Trim('"');
-                name = Uri.UnescapeDataString(name);
+                var name = Uri.UnescapeDataString(cd.FileNameStar);
+                if (!string.IsNullOrWhiteSpace(name)) return name;
+            }
+            // 回退到 filename（已被 .NET 自动解码，直接使用）
+            if (!string.IsNullOrWhiteSpace(cd.FileName))
+            {
+                var name = cd.FileName.Trim('"');
                 if (!string.IsNullOrWhiteSpace(name)) return name;
             }
         }

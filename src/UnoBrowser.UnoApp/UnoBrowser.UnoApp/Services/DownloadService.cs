@@ -80,16 +80,13 @@ public class DownloadService : IDownloadService
             var downloadDir = GetDownloadDirectory();
             Directory.CreateDirectory(downloadDir);
 
+            // 优先使用服务器 Content-Disposition 推荐的文件名（最准确的编码）
+            var serverFileName = GetFileNameFromResponse(response, record.Url);
+            record.FileName = serverFileName;
+            LogHelper.Info($"[下载服务] 文件名确定: {record.FileName} (来源: 服务器 Content-Disposition)");
+
             // 处理重名文件
             var savePath = GetSavePath(downloadDir, record.FileName);
-
-            // 如果文件名未知，尝试从 URL 或 Content-Disposition 获取；否则清理非法字符
-            if (string.IsNullOrWhiteSpace(record.FileName))
-                record.FileName = GetFileNameFromResponse(response, record.Url);
-            else
-                record.FileName = CleanFileName(record.FileName);
-
-            savePath = GetSavePath(downloadDir, record.FileName);
             record.LocalPath = savePath;
 
             // 流式下载写入文件
@@ -190,13 +187,22 @@ public class DownloadService : IDownloadService
     private static string GetFileNameFromResponse(HttpResponseMessage response, string url)
     {
         // 1) 优先从 Content-Disposition 头部获取（filename* 支持 RFC 5987 的 UTF-8 文件名）
+        // 注意：FileNameStar 是原始编码值，需要 URL 解码；
+        //       FileName 已由 ContentDispositionHeaderValue 自动解码，直接使用即可。
         var contentDisposition = response.Content.Headers.ContentDisposition;
         if (contentDisposition is not null)
         {
-            var headerName = contentDisposition.FileNameStar ?? contentDisposition.FileName;
+            var headerName = contentDisposition.FileNameStar;
             if (!string.IsNullOrWhiteSpace(headerName))
             {
-                var fileName = CleanFileName(Uri.UnescapeDataString(headerName.Trim('"')));
+                var fileName = CleanFileName(Uri.UnescapeDataString(headerName));
+                if (!string.IsNullOrWhiteSpace(fileName))
+                    return fileName;
+            }
+            // FileNameStar 不存在时使用 FileName（已被 .NET 自动解码）
+            if (!string.IsNullOrWhiteSpace(contentDisposition.FileName))
+            {
+                var fileName = CleanFileName(contentDisposition.FileName);
                 if (!string.IsNullOrWhiteSpace(fileName))
                     return fileName;
             }
