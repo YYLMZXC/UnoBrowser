@@ -83,3 +83,6 @@ ehthumbs.db
 fixsvg_tmp.ps1
 tmp/
 *.tmp
+
+# AI / IDE tooling
+.junie/
