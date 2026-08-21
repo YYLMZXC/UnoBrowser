@@ -130,6 +130,10 @@ public partial class App : Application
         downloadHistory.Load();
         services.AddSingleton<IDownloadHistoryService>(downloadHistory);
 
+        var browsingHistory = new BrowsingHistoryService();
+        browsingHistory.Load();
+        services.AddSingleton<IBrowsingHistoryService>(browsingHistory);
+
         var downloadService = new DownloadService();
         services.AddSingleton<IDownloadService>(downloadService);
 

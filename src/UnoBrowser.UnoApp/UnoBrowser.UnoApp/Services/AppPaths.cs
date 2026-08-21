@@ -33,6 +33,9 @@ public static class AppPaths
     /// <summary>下载历史目录（DownloadHistory）。</summary>
     public static string DownloadHistory { get; }
 
+    /// <summary>浏览历史目录（BrowsingHistory）。</summary>
+    public static string BrowsingHistory { get; }
+
     /// <summary>WebView2 浏览器数据目录（WebView2）。</summary>
     public static string WebView2 { get; }
 
@@ -43,6 +46,7 @@ public static class AppPaths
         Bugs = CreateDirectory(Path.Combine(Root, "Bugs"));
         Downloads = CreateDirectory(Path.Combine(Root, "Downloads"));
         DownloadHistory = CreateDirectory(Path.Combine(Root, "DownloadHistory"));
+        BrowsingHistory = CreateDirectory(Path.Combine(Root, "BrowsingHistory"));
         WebView2 = CreateDirectory(Path.Combine(Root, "WebView2"));
     }
 

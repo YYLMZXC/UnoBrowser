@@ -16,6 +16,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     private readonly ISettingsService _settingsService;
     private readonly IBrowserProvider _browserProvider;
     private readonly DownloadListViewModel _downloadList;
+    private readonly IBrowsingHistoryService _browsingHistory;
 
     private int _selectedTabIndex;
     private int _selectedUaIndex;
@@ -100,6 +101,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         _settingsService = settingsService;
         _browserProvider = browserProvider;
         _downloadList = downloadList;
+        _browsingHistory = ServiceLocator.ServiceLocatorObj.GetRequiredService<IBrowsingHistoryService>();
 
         OpenDownloadFolderCommand = new RelayCommand(() =>
         {
@@ -121,6 +123,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         ClearHistoryCommand = new RelayCommand(() =>
         {
             LogHelper.Info("[设置] 清除浏览历史");
+            _browsingHistory.ClearHistory();
             History.Clear();
         });
         NavigateToHistoryCommand = new RelayCommand<string>(url =>

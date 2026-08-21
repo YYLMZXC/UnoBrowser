@@ -61,6 +61,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     // ===================== 历史记录 =====================
 
+    private readonly IBrowsingHistoryService _browsingHistory;
     public ObservableCollection<string> History { get; } = new();
 
     // ===================== 设置面板 =====================
@@ -129,6 +130,11 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _browser = browser;
         _settingsService = settingsService;
+        _browsingHistory = ServiceLocator.ServiceLocatorObj.GetRequiredService<IBrowsingHistoryService>();
+
+        // 从持久化存储加载浏览历史
+        foreach (var url in _browsingHistory.Records)
+            History.Add(url);
 
         // 创建 DownloadListViewModel 并传入下载管线（包含 Cookie 获取）
         DownloadList = new DownloadListViewModel(
@@ -166,8 +172,11 @@ public class MainViewModel : INotifyPropertyChanged
             UpdateCurrentTab(url);
             if (!string.IsNullOrWhiteSpace(url))
             {
-                History.Insert(0, url);
-                if (History.Count > 100) History.RemoveAt(100);
+                _browsingHistory.AddRecord(url);
+                // 同步到 UI（AddRecord 已去重并持久化）
+                History.Clear();
+                foreach (var r in _browsingHistory.Records)
+                    History.Add(r);
             }
         };
         _browser.TitleChanged += (_, title) =>
