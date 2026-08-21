@@ -97,8 +97,6 @@ public partial class DownloadListViewModel : ViewModelBase
         };
 
         _historyService.AddRecord(record);
-        Records.Add(record);
-        OnPropertyChanged(nameof(HasRecords));
         LogHelper.Info($"[下载列表] 新增下载任务: {record.FileName}, URL={url}");
 
         await DownloadAsync(record);
