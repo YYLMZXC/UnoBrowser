@@ -173,18 +173,13 @@ public class MainViewModel : INotifyPropertyChanged
             if (!string.IsNullOrWhiteSpace(url))
             {
                 _browsingHistory.AddRecord(url);
-                // 同步到 UI（AddRecord 已去重并持久化）
-                History.Clear();
-                foreach (var r in _browsingHistory.Records)
-                    History.Add(r);
+                SyncHistoryToUI();
             }
         };
 
         // 记录默认首页到浏览历史
         _browsingHistory.AddRecord(_currentUrl);
-        History.Clear();
-        foreach (var r in _browsingHistory.Records)
-            History.Add(r);
+        SyncHistoryToUI();
         _browser.TitleChanged += (_, title) =>
         {
             var newTitle = string.IsNullOrWhiteSpace(title) ? "Uno浏览器" : $"Uno浏览器 - {title}";
@@ -253,6 +248,21 @@ public class MainViewModel : INotifyPropertyChanged
         _browser.Initialize("https://www.bing.com");
         CurrentUrl = "https://www.bing.com";
         UpdateCurrentTab(CurrentUrl);
+    }
+
+    /// <summary>将持久化浏览历史同步到 SettingsViewModel 和 MainViewModel 的 UI 集合。</summary>
+    private void SyncHistoryToUI()
+    {
+        History.Clear();
+        foreach (var r in _browsingHistory.Records)
+            History.Add(r);
+
+        if (Settings is not null)
+        {
+            Settings.History.Clear();
+            foreach (var r in _browsingHistory.Records)
+                Settings.History.Add(r);
+        }
     }
 
     /// <summary>根据当前 URL 更新底部导航高亮标签。</summary>

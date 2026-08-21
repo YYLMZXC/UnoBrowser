@@ -36,7 +36,10 @@ public sealed partial class MainPage : Page
         // 绑定浏览历史到设置面板
         if (ViewModel.Settings is not null)
         {
-            ViewModel.Settings.History = ViewModel.History;
+            // 将 MainViewModel 的历史同步到 SettingsViewModel 的集合（填充而非替换引用，保证绑定生效）
+            ViewModel.Settings.History.Clear();
+            foreach (var url in ViewModel.History)
+                ViewModel.Settings.History.Add(url);
             ViewModel.Settings.OnNavigateToHistoryUrl = url =>
             {
                 ViewModel.NavigateTo(url);

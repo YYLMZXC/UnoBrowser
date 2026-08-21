@@ -48,6 +48,8 @@ public partial class SettingsPanel : UserControl
             _currentVm.PropertyChanged += OnViewModelPropertyChanged;
             // 同步当前标签状态
             SetActiveTab(_currentVm.SelectedTabIndex);
+            // 强制刷新历史列表绑定
+            HistoryListBox.ItemsSource = _currentVm.History;
         }
     }
 
