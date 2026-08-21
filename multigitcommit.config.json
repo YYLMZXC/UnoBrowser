@@ -1,7 +1,8 @@
 {
   "RemoteUrls": [
     "https://github.com/YYLMZXC/UnoBrowser",
-    "https://cnb.cool/YYLMZXC/UnoBrowser"
+    "https://cnb.cool/YYLMZXC/UnoBrowser",
+    "https://gitee.com/yylmzxc/uno-browser"
   ],
   "CheckAddAll": true,
   "CheckPushTags": false
